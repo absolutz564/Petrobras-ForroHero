@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c0fcc1b6a674844aaebd219c703c4d, type: 3}
+  m_Name: SongData-Asa-Branca
+  m_EditorClassIdentifier:
+  SongName: Asa Branca - Luiz Gonzaga
+  BPM: 121
+  EasyTimeline: {fileID: 11400000, guid: 1bc2e7c5ecf49624e90a022752f7caa1, type: 2}
+  HardTimeline: {fileID: 11400000, guid: 92e47476ffc70f34bbfe5fcc63d3d6fd, type: 2}
+  AccordionAudioClip: {fileID: 8300000, guid: 1432944f197f61c4282acee586e28cb0, type: 3}
+  PreviewAudioClip: {fileID: 8300000, guid: b561e8085601bae4a883e7e08c80f8c3, type: 3}

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c0fcc1b6a674844aaebd219c703c4d, type: 3}
+  m_Name: SongData-Olha-Pro-Ceu
+  m_EditorClassIdentifier: 
+  SongName: "Olha Pro C\xE9u - Mastruz com Leite"
+  BPM: 77.5
+  EasyTimeline: {fileID: 11400000, guid: aea53fe74044f2642ab94ea1c9fedb3b, type: 2}
+  HardTimeline: {fileID: 11400000, guid: ad79e7583313f03489eadd98072a6ca5, type: 2}
+  AccordionAudioClip: {fileID: 8300000, guid: a05aca9634d9e784da2ab9d909598761, type: 3}
+  PreviewAudioClip: {fileID: 8300000, guid: 19d90143b7704144fa379070f64d4179, type: 3}

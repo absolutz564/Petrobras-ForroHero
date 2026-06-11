@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f14bcbd7e0ba8b74388995ead9b2e0bc, type: 3}
+  m_Name: AudioData
+  m_EditorClassIdentifier: 
+  BGMs: []
+  SFXs:
+  - Tag: Countdown
+    Clip: {fileID: 8300000, guid: a3c714322547eb845a948d690fb68a53, type: 3}
+  - Tag: Click
+    Clip: {fileID: 8300000, guid: cdcff1a91b32f854d8aff4bc5402b07c, type: 3}
+  - Tag: Next
+    Clip: {fileID: 8300000, guid: 3eb0343c74386be4e87d760e7cf9aeb3, type: 3}
+  - Tag: Previous
+    Clip: {fileID: 8300000, guid: bb32b6acc86c1a74a9349feaf60bf5f4, type: 3}
+  - Tag: MissedNote
+    Clip: {fileID: 8300000, guid: 92c0d979f13133a489d898ada3261c92, type: 3}
+  - Tag: Crowd
+    Clip: {fileID: 8300000, guid: 8bacbe3082a54484ba3ed87ade642e8f, type: 3}

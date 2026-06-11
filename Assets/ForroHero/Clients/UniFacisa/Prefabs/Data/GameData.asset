@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fd3f71961113884fbc1450f10346822, type: 3}
+  m_Name: GameData
+  m_EditorClassIdentifier: 
+  HomeBackgroundSprite: {fileID: 21300000, guid: 536124a9642cda340b18b3820c258b7d, type: 3}
+  HomeButtonText1: pressione
+  HomeButtonText2: "para come\xE7ar"
+  MusicSelectionBackgroundSprite: {fileID: 2235833852287526589, guid: 1fa20ff677ff0c1439f98773c0252571, type: 3}
+  CountdownBackgroundSprite: {fileID: -3924229382096025789, guid: bfd1eb89cf54555448b1a59aede3789e, type: 3}
+  GameBackgroundSprite: {fileID: -3406773453833436909, guid: abd6e868ffb3a2e468d2c8b54e213c86, type: 3}
+  GameLogoSprite: {fileID: 0}
+  GameSliderHandleSprite: {fileID: 0}
+  ResultsBackgroundSprite: {fileID: -3924229382096025789, guid: bfd1eb89cf54555448b1a59aede3789e, type: 3}
+  ResultsLogoSprite: {fileID: 21300000, guid: 0b8cf4358bbf29348800cd30ec16c909, type: 3}
+  ResultsTitleText: "Parab\xE9ns, voc\xEA fez"
+  ResultsButtonText: jogar novamente

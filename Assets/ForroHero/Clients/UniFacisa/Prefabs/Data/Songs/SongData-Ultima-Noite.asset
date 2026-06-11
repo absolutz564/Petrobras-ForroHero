@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c0fcc1b6a674844aaebd219c703c4d, type: 3}
+  m_Name: SongData-Ultima-Noite
+  m_EditorClassIdentifier: 
+  SongName: "\xDAltima Noite - Nattan e L\xE9o Foguete"
+  BPM: 82
+  EasyTimeline: {fileID: 11400000, guid: 8c5c5185b70a1cc41bb57e22b90a1acf, type: 2}
+  HardTimeline: {fileID: 11400000, guid: 4c5e52ade0178284f8105bea6279e6fb, type: 2}
+  AccordionAudioClip: {fileID: 8300000, guid: e88c44267aa8fff4ea2ac131053ae809, type: 3}
+  PreviewAudioClip: {fileID: 8300000, guid: fb17b484bc96f264384ecd4fbc00b751, type: 3}

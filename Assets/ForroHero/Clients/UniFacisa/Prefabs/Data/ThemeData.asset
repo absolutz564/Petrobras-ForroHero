@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67e80629f4217834ab6cd476e2548e0f, type: 3}
+  m_Name: ThemeData
+  m_EditorClassIdentifier: 
+  RegularFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  BoldFont: {fileID: 11400000, guid: 492c3bac7b26a2244aa262701f488162, type: 2}
+  ExtraBoldFont: {fileID: 11400000, guid: c3774d7cd49de2644a7da831f34df7de, type: 2}
+  PrimaryColor: {r: 0.015686275, g: 0.3019608, b: 0.05882353, a: 1}
+  SecondaryColor: {r: 1, g: 1, b: 1, a: 1}
+  TertiaryColor: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
+  WhiteColor: {r: 1, g: 1, b: 1, a: 1}
+  DisabledColor: {r: 1, g: 1, b: 1, a: 0.49019608}
