@@ -6,7 +6,11 @@ replicando a estrutura de um chart que funciona (Brincar-de-Amar).
 Sobrescreve o .asset alvo SEM tocar no .meta (preserva o GUID).
 
 Uso:
-  python gen_chart.py <midi> <bpm> <back_wav> <accordion_wav> <out_asset>
+  python gen_chart.py <midi> <bpm> <back_wav> <accordion_wav> <out_asset> [leadin_seg] [back_offset_seg]
+
+leadin_seg (opcional, padrao 2.0): segundos de "corredor" vazio no inicio, ANTES do
+audio comecar, para dar tempo de reacao na 1a nota. Audio e notas sao deslocados juntos
+por esse valor (preserva a sincronia nota<->musica).
 """
 import sys
 import os
@@ -129,6 +133,11 @@ def timeline_clip(start, duration, asset_id, track_id, display, audio=False):
 def main():
     midi, bpm, back_wav, acc_wav, out = sys.argv[1:6]
     bpm = float(bpm)
+    leadin = float(sys.argv[6]) if len(sys.argv) > 6 else 2.0
+    # back_offset (opcional, padrao 0): desloca SO' o track do Back em relacao ao
+    # Accordion+notas, para corrigir desalinhamento constante entre os stems.
+    # Negativo = Back comeca mais cedo (corrige Back atrasado).
+    back_offset = float(sys.argv[7]) if len(sys.argv) > 7 else 0.0
     name = os.path.splitext(os.path.basename(out))[0]
     tap_dur = 30.0 / bpm
 
@@ -171,7 +180,7 @@ def main():
     for start, lane in notes:
         clip_id = nid()
         clips_by_lane[lane].append(timeline_clip(
-            start, tap_dur, clip_id, rhythm_track_ids[lane], '"\\u2001"'))
+            start + leadin, tap_dur, clip_id, rhythm_track_ids[lane], '"\\u2001"'))
         rhythmclip_blocks.append(
             mono_header(clip_id)
             + f"  m_Script: {{fileID: 11500000, guid: {SCRIPT_RHYTHMCLIP}, type: 3}}\n"
@@ -214,7 +223,7 @@ def main():
                  + f"  m_ID: {lane}\n")
         return body
 
-    def audio_track(tid, apa_id, name_disp, dispname):
+    def audio_track(tid, apa_id, name_disp, dispname, start):
         body = (mono_header(tid)
                 + f"  m_Script: {{fileID: 11500000, guid: {SCRIPT_AUDIOTRACK}, type: 3}}\n"
                 + f"  m_Name: {name_disp}\n"
@@ -228,7 +237,7 @@ def main():
                 + "  m_Parent: {fileID: 11400000}\n"
                 + "  m_Children: []\n"
                 + "  m_Clips:\n"
-                + timeline_clip(0, audio_dur, apa_id, tid, dispname, audio=True)
+                + timeline_clip(start, audio_dur, apa_id, tid, dispname, audio=True)
                 + "  m_Markers:\n    m_Objects: []\n"
                 + "  m_TrackProperties:\n    volume: 1\n    stereoPan: 0\n    spatialBlend: 0\n")
         return body
@@ -271,8 +280,8 @@ def main():
     out_text = "%YAML 1.1\n%TAG !u! tag:unity3d.com,2011:\n"
     out_text += main
     out_text += rhythm_track(0) + rhythm_track(1) + rhythm_track(2) + rhythm_track(3)
-    out_text += audio_track(back_track_id, back_apa_id, "Audio Track", os.path.splitext(os.path.basename(back_wav))[0])
-    out_text += audio_track(acc_track_id, acc_apa_id, "Audio Track (1)", os.path.splitext(os.path.basename(acc_wav))[0])
+    out_text += audio_track(back_track_id, back_apa_id, "Audio Track", os.path.splitext(os.path.basename(back_wav))[0], leadin + back_offset)
+    out_text += audio_track(acc_track_id, acc_apa_id, "Audio Track (1)", os.path.splitext(os.path.basename(acc_wav))[0], leadin)
     out_text += audio_playable(back_apa_id, back_guid)
     out_text += audio_playable(acc_apa_id, acc_guid)
     out_text += "".join(rhythmclip_blocks)
@@ -282,7 +291,8 @@ def main():
 
     per_lane = {l: len(clips_by_lane[l]) for l in range(4)}
     print(f"OK: {out}")
-    print(f"   notas={len(notes)}  por lane={per_lane}  dur_audio={audio_dur:.2f}s  tap_dur={tap_dur:.4f}")
+    print(f"   notas={len(notes)}  por lane={per_lane}  dur_audio={audio_dur:.2f}s  tap_dur={tap_dur:.4f}"
+          f"  leadin={leadin}  back_offset={back_offset:+.3f}s")
 
 
 if __name__ == "__main__":

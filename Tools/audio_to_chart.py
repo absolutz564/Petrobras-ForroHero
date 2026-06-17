@@ -21,10 +21,33 @@ def seconds_to_ticks(t, bpm):
 
 def detect(path, bpm):
     y, sr = librosa.load(path, mono=True)
-    # onsets (ataques)
-    onset_frames = librosa.onset.onset_detect(y=y, sr=sr, backtrack=True, units="frames")
-    onset_times = librosa.frames_to_time(onset_frames, sr=sr)
+    # envelope de onset (mais sensivel: lag menor, sem media movel longa)
     onset_strength = librosa.onset.onset_strength(y=y, sr=sr)
+    # onsets (ataques) — ALTA sensibilidade para nao perder notas no solo do acordeao.
+    # O excesso e' limpo depois pela quantizacao na grade (1 nota por casa).
+    onset_frames = librosa.onset.onset_detect(
+        y=y, sr=sr, onset_envelope=onset_strength, backtrack=True, units="frames",
+        pre_max=3, post_max=3, pre_avg=10, post_avg=10, delta=0.03, wait=3,
+    )
+    onset_times = librosa.frames_to_time(onset_frames, sr=sr)
+
+    # GATE DE ENERGIA: descarta onsets onde o acordeao esta em silencio
+    # (evita "nota passando no silencio"). Usa RMS normalizado.
+    rms = librosa.feature.rms(y=y)[0]
+    rms_times = librosa.times_like(rms, sr=sr)
+    rms_norm = rms / (rms.max() + 1e-9)
+    gate = 0.06  # ~6% do pico = limiar de "tem som"
+    kept_frames, kept_times = [], []
+    for f, t in zip(onset_frames, onset_times):
+        i = int(np.argmin(np.abs(rms_times - t)))
+        if rms_norm[i] >= gate:
+            kept_frames.append(f)
+            kept_times.append(t)
+    n_drop = len(onset_times) - len(kept_times)
+    onset_frames = np.array(kept_frames, dtype=int)
+    onset_times = np.array(kept_times)
+    print(f"gate de energia: {n_drop} onset(s) em silencio descartado(s)")
+
     # forca de cada onset
     strengths = []
     for f in onset_frames:
@@ -53,22 +76,24 @@ def pitch_at(t, f0, f0_times):
 
 
 def assign_lanes(times, f0, f0_times):
+    n = len(times)
     pitches = np.array([pitch_at(t, f0, f0_times) for t in times])
     valid = pitches[~np.isnan(pitches)]
-    if len(valid) < 4:
+    if n < 4 or len(valid) < 4:
         # sem pitch confiavel -> alterna lanes
-        return [i % 4 for i in range(len(times))]
-    # 4 faixas por quantis sobre as alturas da musica
-    edges = np.quantile(valid, [0.25, 0.5, 0.75])
-    lanes = []
-    last = 0
-    for p in pitches:
-        if np.isnan(p):
-            lanes.append(last)  # mantem lane anterior
+        return [i % 4 for i in range(n)]
+    # forward-fill dos NaN (nota sustentada herda a altura anterior)
+    filled = pitches.copy()
+    last = valid[0]
+    for i in range(n):
+        if np.isnan(filled[i]):
+            filled[i] = last
         else:
-            lane = int(np.searchsorted(edges, p))  # 0..3
-            lanes.append(lane)
-            last = lane
+            last = filled[i]
+    # rank ORDINAL (empates desfeitos por ordem temporal) -> 4 faixas balanceadas.
+    # Garante uso das 4 lanes (sem coluna morta) e mantem 'mais agudo -> lane maior'.
+    ranks = np.argsort(np.argsort(filled, kind="stable"), kind="stable")
+    lanes = [int(r * 4 // n) for r in ranks]
     return lanes
 
 
@@ -80,6 +105,23 @@ def thin(times, min_gap):
         if t - last >= min_gap:
             out.append(t)
             last = t
+    return out
+
+
+def quantize(times, bpm, subdiv):
+    """Trava cada onset na casa mais proxima da grade musical e deduplica:
+    1 nota por casa (subdiv=2 -> colcheias, subdiv=1 -> seminimas).
+    Mantem a nota onde HA ataque (so gera onde o acordeao toca), mas com
+    o tempo alinhado a' batida -> sensacao 'fiel e no tempo'.
+    """
+    slot = (60.0 / bpm) / subdiv
+    seen = set()
+    out = []
+    for t in sorted(times):
+        k = int(round(t / slot))
+        if k not in seen:
+            seen.add(k)
+            out.append(k * slot)
     return out
 
 
@@ -109,18 +151,22 @@ def build_track(times, lanes, bpm):
 
 def main():
     path, bpm, out = sys.argv[1], float(sys.argv[2]), sys.argv[3]
+    # hard_gap (opcional, padrao 0.42): espacamento minimo do Hard em fracao de batida.
+    # MAIOR = menos notas (Hard mais ralo). So afeta o Hard.
+    hard_gap = float(sys.argv[4]) if len(sys.argv) > 4 else 0.42
     onset_times, strengths, beat_times, f0, f0_times = detect(path, bpm)
     print(f"onsets detectados: {len(onset_times)} | batidas: {len(beat_times)}")
 
-    # HARD: todos os onsets, espacamento minimo de ~1/4 de batida
+    # HARD: TEMPOS REAIS dos onsets (fiel ao ataque do acordeao, sem quantizar na grade,
+    # que tiraria do tempo por causa do swing/rubato). thin so' remove disparos-duplos.
     beat = 60.0 / bpm
-    hard_times = thin(sorted(onset_times), min_gap=beat * 0.45)
+    hard_times = thin(sorted(onset_times), min_gap=beat * hard_gap)
     hard_lanes = assign_lanes(hard_times, f0, f0_times)
     build_track(hard_times, hard_lanes, bpm).save(out + "-Hard.mid")
     print(f"HARD: {len(hard_times)} notas -> {out}-Hard.mid")
 
-    # EASY: onsets que caem perto de uma batida forte (tolerancia), 1 por batida
-    tol = beat * 0.25
+    # EASY: onsets reais perto de uma batida forte (1 por batida) — tempo do proprio ataque.
+    tol = beat * 0.35
     easy_times = []
     for bt in beat_times:
         near = [t for t in onset_times if abs(t - bt) <= tol]

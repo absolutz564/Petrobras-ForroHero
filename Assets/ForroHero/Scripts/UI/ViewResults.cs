@@ -71,7 +71,7 @@ namespace ForroHero.Scripts.UI
             if (lane == 0)
             {
                 UIUtils.ButtonKeyUp(m_Button, ref m_ButtonAnimation,
-                    () => { ViewManager.Instance.ShowView(ViewName.Home, true); });
+                    () => { ViewManager.Instance.ShowView(ViewName.QR, true); });
             }
         }
     }

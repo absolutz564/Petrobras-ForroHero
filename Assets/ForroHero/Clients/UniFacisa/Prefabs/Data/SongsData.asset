@@ -11,6 +11,11 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e54b958955e9f9f4f85788e56fd4a69c, type: 3}
   m_Name: SongsData
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   Songs:
   - {fileID: 11400000, guid: f9c458abdfb040b190877276deaf3a59, type: 2}
+  - {fileID: 11400000, guid: f4e01c1043c8416c854c0af83cee7beb, type: 2}
+  - {fileID: 11400000, guid: 781dbd859332470b8f1b7ade2f960f34, type: 2}
+  - {fileID: 11400000, guid: c40002628660494b9bd24568bf576a08, type: 2}
+  - {fileID: 11400000, guid: 51de3ba3723040769b49c4de49ed91ad, type: 2}
+  - {fileID: 11400000, guid: 38282aabce2647b1b9aaa2e8ec7b0f07, type: 2}

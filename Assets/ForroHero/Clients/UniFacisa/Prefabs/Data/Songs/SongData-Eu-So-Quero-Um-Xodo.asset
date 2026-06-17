@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c0fcc1b6a674844aaebd219c703c4d, type: 3}
+  m_Name: SongData-Eu-So-Quero-Um-Xodo
+  m_EditorClassIdentifier:
+  SongName: Eu Só Quero Um Xodó
+  BPM: 94
+  EasyTimeline: {fileID: 11400000, guid: 7ec7f265f11c452e9a359837a2743ebc, type: 2}
+  HardTimeline: {fileID: 11400000, guid: 09fbef2b80064973a06d3c0c5a194b0b, type: 2}
+  AccordionAudioClip: {fileID: 8300000, guid: c42ee1e1662b8e64d9a2e70e739bda51, type: 3}
+  PreviewAudioClip: {fileID: 8300000, guid: 65e190952ee27a44baeaaa99eedb9545, type: 3}

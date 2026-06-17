@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SongData-Asa-Branca
   m_EditorClassIdentifier:
   SongName: Asa Branca - Luiz Gonzaga
-  BPM: 121
+  BPM: 123
   EasyTimeline: {fileID: 11400000, guid: 1bc2e7c5ecf49624e90a022752f7caa1, type: 2}
   HardTimeline: {fileID: 11400000, guid: 92e47476ffc70f34bbfe5fcc63d3d6fd, type: 2}
   AccordionAudioClip: {fileID: 8300000, guid: 1432944f197f61c4282acee586e28cb0, type: 3}

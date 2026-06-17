@@ -7,7 +7,9 @@ namespace ForroHero.Scripts.Utils
         MusicSelection,
         Countdown,
         Game,
-        Results
+        Results,
+        QR,
+        Obrigado
     }
     
     public enum Difficulty

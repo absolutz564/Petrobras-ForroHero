@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c0fcc1b6a674844aaebd219c703c4d, type: 3}
+  m_Name: SongData-Tareco-e-Mariola
+  m_EditorClassIdentifier:
+  SongName: Tareco e Mariola
+  BPM: 85
+  EasyTimeline: {fileID: 11400000, guid: fe73e95da7ac4266baa579a5ad175961, type: 2}
+  HardTimeline: {fileID: 11400000, guid: 28c7983afa02404390ee0bf735cba14c, type: 2}
+  AccordionAudioClip: {fileID: 8300000, guid: 6581bde0f3c0dfe40b2adcbfbd78d12b, type: 3}
+  PreviewAudioClip: {fileID: 8300000, guid: 2024ee1b49fa35d4b9780e99f63bc9c7, type: 3}

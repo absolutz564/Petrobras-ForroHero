@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c0fcc1b6a674844aaebd219c703c4d, type: 3}
+  m_Name: SongData-Numa-Sala-de-Reboco
+  m_EditorClassIdentifier:
+  SongName: Numa Sala de Reboco
+  BPM: 153
+  EasyTimeline: {fileID: 11400000, guid: cdf1edbd822e4b9d81d62420a2f0bf71, type: 2}
+  HardTimeline: {fileID: 11400000, guid: c1f2e23ed023489f819d956ec0045c2f, type: 2}
+  AccordionAudioClip: {fileID: 8300000, guid: ff4153718f7b4664da0cb3c042a25b67, type: 3}
+  PreviewAudioClip: {fileID: 8300000, guid: 20946e8550fa39e479c566f18bafb657, type: 3}
