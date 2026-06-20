@@ -9,7 +9,8 @@ namespace ForroHero.Scripts.Utils
         Game,
         Results,
         QR,
-        Obrigado
+        Obrigado,
+        Foto
     }
     
     public enum Difficulty

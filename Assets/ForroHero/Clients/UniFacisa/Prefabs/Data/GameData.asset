@@ -23,4 +23,4 @@ MonoBehaviour:
   ResultsBackgroundSprite: {fileID: -3924229382096025789, guid: bfd1eb89cf54555448b1a59aede3789e, type: 3}
   ResultsLogoSprite: {fileID: 21300000, guid: 0b8cf4358bbf29348800cd30ec16c909, type: 3}
   ResultsTitleText: "Parab\xE9ns, voc\xEA fez"
-  ResultsButtonText: jogar novamente
+  ResultsButtonText: "Avan\xE7ar"

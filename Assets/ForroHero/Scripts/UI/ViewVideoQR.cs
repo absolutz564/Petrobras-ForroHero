@@ -3,25 +3,23 @@ using System.Collections;
 using System.IO;
 using ForroHero.Scripts.Audio;
 using ForroHero.Scripts.Managers;
+using ForroHero.Scripts.Photo;
 using ForroHero.Scripts.Utils;
-using ForroHero.Scripts.Video;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-using UnityEngine.Video;
 
 namespace ForroHero.Scripts.UI
 {
     /// <summary>
-    /// Mostra o vídeo gravado, faz o upload e exibe o QR Code de download.
-    /// Portado do FinalScreenController do SempreLivre para o sistema de Views.
+    /// Mostra a FOTO final (com moldura), faz o upload (image/png) e exibe o QR Code de
+    /// download. A foto vem do PhotoSession (preenchido pela ViewFoto). Mesma config de
+    /// servidor do fluxo anterior; só mudou de vídeo (.mp4) para imagem (.png).
     /// </summary>
     public class ViewVideoQR : View
     {
-        [Header("Preview do Vídeo")]
-        [SerializeField] private VideoPlayer m_VideoPlayer;
-        [SerializeField] private RawImage m_VideoDisplay;
-        [SerializeField] private RenderTexture m_VideoRenderTexture;
+        [Header("Preview da foto final")]
+        [SerializeField] private RawImage m_PhotoDisplay;
 
         [Header("QR Code")]
         [SerializeField] private GameObject m_QrCodePanel;
@@ -36,6 +34,12 @@ namespace ForroHero.Scripts.UI
         [SerializeField] private string m_UploadEndpoint;
         [SerializeField] private string m_RedirectLink;
 
+        [Header("Navegação (lanes dos botões físicos)")]
+        [Tooltip("Lane que avança para a tela de Obrigado.")]
+        [SerializeField] private int m_AdvanceLane = 0;
+        [Tooltip("Lane que refaz a captura de foto (volta para a View - Foto).")]
+        [SerializeField] private int m_RetakeLane = 1;
+
         private string m_Token;
         private string m_AccessToken;
         private string m_Base64QRCode;
@@ -49,32 +53,59 @@ namespace ForroHero.Scripts.UI
 
             m_CanRestart = false;
 
-            if (m_LoadingPanel) m_LoadingPanel.SetActive(true);
-            if (m_ContentPanel) m_ContentPanel.SetActive(false);
             if (m_QrCodePanel) m_QrCodePanel.SetActive(false);
+            if (m_LoadingPanel) m_LoadingPanel.SetActive(true);
+            if (m_ContentPanel) m_ContentPanel.SetActive(true);
+
+            // Mostra a foto final composta (com moldura).
+            if (m_PhotoDisplay != null && PhotoSession.FinalImage != null)
+                m_PhotoDisplay.texture = PhotoSession.FinalImage;
 
             LoadCredentials();
-            StartCoroutine(WaitThenProcess(VideoRecordingController.VideoPath));
+
+            string path = PhotoSession.FinalImagePath;
+            if (!string.IsNullOrEmpty(m_ServerUrl) && !string.IsNullOrEmpty(path) && File.Exists(path))
+            {
+                StartCoroutine(UploadImage(path));
+            }
+            else
+            {
+                Debug.Log("[ViewQR] Upload ignorado (serverUrl vazio ou imagem ausente).");
+                if (m_LoadingPanel) m_LoadingPanel.SetActive(false);
+                m_CanRestart = true;
+            }
         }
 
         public override void OnHide()
         {
             base.OnHide();
             InputManager.Instance.OnNoteReleased -= HandleNoteReleased;
-
-            // Para o preview (estava em loop) ao sair da view.
-            if (m_VideoPlayer != null && m_VideoPlayer.isPlaying)
-                m_VideoPlayer.Stop();
         }
 
         private void HandleNoteReleased(int lane)
         {
-            // Só permite reiniciar depois do conteúdo carregado (evita pular o QR
-            // com o mesmo input que veio do Results).
+            // Só permite navegar depois do conteúdo carregado (evita pular o QR com o
+            // mesmo input que veio do countdown da captura).
             if (!m_CanRestart) return;
 
+            if (lane == m_AdvanceLane) GoToObrigado();
+            else if (lane == m_RetakeLane) RetakePhoto();
+        }
+
+        // Públicos para também poderem ser ligados ao OnClick de um Button de toque.
+        public void GoToObrigado()
+        {
+            if (!m_CanRestart) return;
             AudioManager.Instance.PlaySFX("Click");
             ViewManager.Instance.ShowView(ViewName.Obrigado, true);
+        }
+
+        // Refaz a captura: volta para a tela de foto (que reabre a câmera).
+        public void RetakePhoto()
+        {
+            if (!m_CanRestart) return;
+            AudioManager.Instance.PlaySFX("Click");
+            ViewManager.Instance.ShowView(ViewName.Foto, true);
         }
 
         private void LoadCredentials()
@@ -83,86 +114,21 @@ namespace ForroHero.Scripts.UI
             m_AccessToken = PlayerPrefs.GetString("accessToken", "");
 
             if (string.IsNullOrEmpty(m_Token) || string.IsNullOrEmpty(m_AccessToken))
-                Debug.LogWarning("[ViewVideoQR] Credenciais ausentes — o TokenLoader rodou no boot?");
+                Debug.LogWarning("[ViewQR] Credenciais ausentes — o TokenLoader rodou no boot?");
         }
 
-        private IEnumerator WaitThenProcess(string videoPath)
+        private IEnumerator UploadImage(string imagePath)
         {
-            float waitTime = 0f;
-            while (!File.Exists(videoPath) && waitTime < 30f)
-            {
-                yield return new WaitForSeconds(0.5f);
-                waitTime += 0.5f;
-            }
-
-            if (!File.Exists(videoPath))
-            {
-                Debug.LogError("[ViewVideoQR] Vídeo não encontrado após 30s: " + videoPath);
-                if (m_LoadingPanel) m_LoadingPanel.SetActive(false);
-                if (m_ContentPanel) m_ContentPanel.SetActive(true);
-                m_CanRestart = true;
-                yield break;
-            }
-
-            // espera o FFmpeg liberar o arquivo
-            bool accessible = false;
-            while (!accessible)
-            {
-                bool locked = false;
-                try { using (File.Open(videoPath, FileMode.Open, FileAccess.Read, FileShare.None)) { } accessible = true; }
-                catch (IOException) { locked = true; }
-                if (locked) yield return new WaitForSeconds(1f);
-            }
-
-            if (m_LoadingPanel) m_LoadingPanel.SetActive(false);
-            if (m_ContentPanel) m_ContentPanel.SetActive(true);
-            m_CanRestart = true;
-
-            InitVideoPreview(videoPath);
-
-            if (!string.IsNullOrEmpty(m_ServerUrl))
-                StartCoroutine(UploadVideo(videoPath));
-            else
-                Debug.Log("[ViewVideoQR] serverUrl vazio — upload ignorado.");
-        }
-
-        private void InitVideoPreview(string videoPath)
-        {
-            if (m_VideoPlayer == null || m_VideoDisplay == null) return;
-
-            if (m_VideoRenderTexture == null)
-                m_VideoRenderTexture = new RenderTexture(1080, 1920, 0);
-
-            m_VideoDisplay.texture = m_VideoRenderTexture;
-            m_VideoPlayer.renderMode = VideoRenderMode.RenderTexture;
-            m_VideoPlayer.targetTexture = m_VideoRenderTexture;
-            m_VideoPlayer.source = VideoSource.Url;
-            m_VideoPlayer.url = new Uri(videoPath).AbsoluteUri;
-            m_VideoPlayer.audioOutputMode = VideoAudioOutputMode.None;
-            m_VideoPlayer.isLooping = true;
-            m_VideoPlayer.prepareCompleted += OnVideoPrepared;
-            m_VideoPlayer.errorReceived += (vp, msg) => Debug.LogError("[ViewVideoQR] VideoPlayer: " + msg);
-            m_VideoPlayer.Prepare();
-        }
-
-        private void OnVideoPrepared(VideoPlayer vp)
-        {
-            vp.prepareCompleted -= OnVideoPrepared;
-            vp.Play();
-        }
-
-        private IEnumerator UploadVideo(string videoPath)
-        {
-            byte[] videoBytes = File.ReadAllBytes(videoPath);
+            byte[] imageBytes = File.ReadAllBytes(imagePath);
 
             WWWForm form = new WWWForm();
             form.AddField("isFileIdentify", "false");
             form.AddField("identify", "false");
             form.AddField("url_redirect", m_RedirectLink);
-            form.AddBinaryData("file", videoBytes, "capture.mp4", "video/mp4");
+            form.AddBinaryData("file", imageBytes, "capture.png", "image/png");
 
             string fullUrl = m_ServerUrl + m_UploadEndpoint;
-            Debug.Log("[ViewVideoQR] Enviando vídeo para: " + fullUrl);
+            Debug.Log("[ViewQR] Enviando foto para: " + fullUrl);
 
             using (UnityWebRequest req = UnityWebRequest.Post(fullUrl, form))
             {
@@ -171,11 +137,14 @@ namespace ForroHero.Scripts.UI
 
                 yield return req.SendWebRequest();
 
+                if (m_LoadingPanel) m_LoadingPanel.SetActive(false);
+                m_CanRestart = true;
+
                 if (req.result != UnityWebRequest.Result.Success)
-                    Debug.LogError($"[ViewVideoQR] Erro no upload: {req.error} | {req.downloadHandler?.text}");
+                    Debug.LogError($"[ViewQR] Erro no upload: {req.error} | {req.downloadHandler?.text}");
                 else
                 {
-                    Debug.Log("[ViewVideoQR] Upload concluído: " + req.downloadHandler.text);
+                    Debug.Log("[ViewQR] Upload concluído: " + req.downloadHandler.text);
                     ParseAndShowQRCode(req.downloadHandler.text);
                 }
             }
@@ -186,7 +155,7 @@ namespace ForroHero.Scripts.UI
             QRCodeData data = JsonUtility.FromJson<QRCodeData>(json);
             if (data == null || string.IsNullOrEmpty(data.qrcode))
             {
-                Debug.LogError("[ViewVideoQR] QR code não encontrado na resposta.");
+                Debug.LogError("[ViewQR] QR code não encontrado na resposta.");
                 return;
             }
 
