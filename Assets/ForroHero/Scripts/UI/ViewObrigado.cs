@@ -1,6 +1,9 @@
 using System.Collections;
+using System.Collections.Generic;
 using ForroHero.Scripts.Audio;
 using ForroHero.Scripts.Managers;
+using ForroHero.Scripts.Photo;
+using ForroHero.Scripts.Ranking;
 using ForroHero.Scripts.Utils;
 using TMPro;
 using UnityEngine;
@@ -20,6 +23,10 @@ namespace ForroHero.Scripts.UI
         [Header("Auto-retorno")]
         [SerializeField] private float m_AutoReturnSeconds = 8f;
 
+        [Header("Ranking diário (top 10)")]
+        [Tooltip("As 10 linhas do ranking, em ordem (1º a 10º). Use o menu Forró Hero > Montar Ranking (Obrigado) para gerar.")]
+        [SerializeField] private List<RankingRow> m_Rows = new List<RankingRow>();
+
         private Coroutine m_AutoReturn;
 
         public override void OnShow()
@@ -28,8 +35,25 @@ namespace ForroHero.Scripts.UI
 
             InputManager.Instance.OnNoteReleased += HandleNoteReleased;
 
+            // Registra a jogada atual (pontuação + foto) e mostra o ranking do dia.
+            DailyRanking.AddEntry(ScoreManager.Instance.Score, PhotoSession.RawPhotoPath);
+            PopulateRanking();
+
             if (m_AutoReturnSeconds > 0f)
                 m_AutoReturn = StartCoroutine(AutoReturnToHome());
+        }
+
+        private void PopulateRanking()
+        {
+            if (m_Rows == null || m_Rows.Count == 0) return;
+
+            List<RankingEntry> top = DailyRanking.GetTop10();
+            for (int i = 0; i < m_Rows.Count; i++)
+            {
+                if (m_Rows[i] == null) continue;
+                if (i < top.Count) m_Rows[i].Set(i + 1, top[i].Score, top[i].PhotoPath);
+                else m_Rows[i].SetEmpty(i + 1);
+            }
         }
 
         public override void OnHide()

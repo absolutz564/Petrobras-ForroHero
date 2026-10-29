@@ -11,10 +11,14 @@ namespace ForroHero.Scripts.Photo
         public static Texture2D FinalImage;
         public static string FinalImagePath = "";
 
+        /// <summary>Foto CRUA (sem moldura) salva localmente — usada como avatar no ranking.</summary>
+        public static string RawPhotoPath = "";
+
         public static void Reset()
         {
             FinalImage = null;
             FinalImagePath = "";
+            RawPhotoPath = "";
         }
     }
 }

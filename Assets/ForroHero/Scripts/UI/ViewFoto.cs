@@ -93,7 +93,7 @@ namespace ForroHero.Scripts.UI
 
             // Captura a webcam como está (só normaliza color space) e compõe com a moldura.
             Texture2D raw = PhotoUtils.CaptureRawImage(m_CameraView);
-            PhotoUtils.SavePng(raw, m_PhotoFileName);
+            PhotoSession.RawPhotoPath = PhotoUtils.SavePng(raw, m_PhotoFileName);
 
             string finalPath = "";
             Texture2D finalImg = raw;
